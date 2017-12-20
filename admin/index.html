@@ -1,0 +1,257 @@
+﻿<?php
+	include($_SERVER['DOCUMENT_ROOT']."/member/connectDB.php");
+?>
+
+<?php
+
+	if($_SESSION['adminSession']==null){
+		echo "<script>history.back();</script>";
+		exit;
+	}
+
+	include($_SERVER['DOCUMENT_ROOT'].'/admin/showLectureList.php');
+
+	if($message === 0){
+		echo "<script>
+			alert('예상치 못한 에러가 발생하였습니다!');
+			history.back();
+		</script>";
+		exit;
+	}
+
+	//$get_page가 없을경우(1페이지임)
+	if($get_page==null){
+		$get_page=1;
+	}
+
+	//버튼 중 active 줄 순서 초기화
+	$color = $get_page%$limit+1;
+
+	if($get_page%$limit==0){
+		$color = 6;
+	}
+?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<!--[if (IE 7)]><html class="no-js ie7" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko"><![endif]-->
+<!--[if (IE 8)]><html class="no-js ie8" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko"><![endif]-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" id="X-UA-Compatible" content="IE=EmulateIE8" />
+<title>해커스 HRD</title>
+<meta name="description" content="해커스 HRD" />
+<meta name="keywords" content="해커스, HRD" />
+
+<!-- 파비콘설정 -->
+<link rel="shortcut icon" type="image/x-icon" href="http://img.hackershrd.com/common/favicon.ico" />
+
+<!-- xhtml property속성 벨리데이션 오류/확인필요 -->
+<meta property="og:title" content="해커스 HRD" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://www.hackershrd.com/" />
+<meta property="og:image" content="http://img.hackershrd.com/common/og_logo.png" />
+
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/common.css" />
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/bxslider.css" />
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/main.css" /><!-- main페이지에만 호출 -->
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/sub.css" /><!-- sub페이지에만 호출 -->
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/login.css" /><!-- login페이지에만 호출 -->
+
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/plugins/bxslider/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/plugins/bxslider/bxslider.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/ui.js"></script>
+<!--[if lte IE 9]> <script src="/js/common/place_holder.js"></script> <![endif]-->
+
+
+<script type="text/javascript">
+
+	$(function(){
+
+		$(".box-paging a").attr("active","");
+		$(".box-paging a:eq(<?= $color ?>)").attr("class","active");
+
+	});
+
+	function checkPageFunc(num1, num2){
+
+		if(num1 == num2){
+			return false;
+		}
+		
+		return true;
+	
+	}
+
+</script>
+
+</head><body>
+
+<div id="wrap">
+
+<!-- include header  -->
+<?include($_SERVER['DOCUMENT_ROOT']."/html/header.html"); ?>
+
+<div id="container" class="container">
+	<div class="tit-box-h3">
+		<h3 class="tit-h3">강의 Admin</h3>
+		<div class="sub-depth">
+			<span><i class="icon-home"><span>홈</span></i></span>
+			<span>강의 Admin</span>
+			<strong>강의 목록</strong>
+		</div>
+	</div>
+
+<!--
+	<ul class="tab-list tab5">
+		<li class="on"><a href="#">전체</a></li>
+		<li><a href="#">일반직무</a></li>
+		<li><a href="#">산업직무</a></li>
+		<li><a href="#">공통역량</a></li>
+		<li><a href="#">어학 및 자격증</a></li>
+	</ul>
+
+	<div class="search-info">
+		<div class="search-form f-r">
+			<select class="input-sel" style="width:158px">
+				<option value="">분류</option>
+			</select>
+			<select class="input-sel" style="width:158px">
+				<option value="">강의명</option>
+				<option value="">강사이름</option>
+			</select>
+			<input type="text" class="input-text" placeholder="강의명을 입력하세요." style="width:158px"/>
+			<button type="button" class="btn-s-dark">검색</button>
+		</div>
+	</div>
+-->
+
+	<table border="0" cellpadding="0" cellspacing="0" class="tbl-bbs">
+		<caption class="hidden">강의 목록</caption>
+		<colgroup>
+			<col style="width:7%"/>
+			<col style="width:15%"/>
+			<col style="*"/>
+			<col style="width:12%"/>
+			<col style="width:8%"/>
+			<col style="width:8%"/>
+			<col style="width:8%"/>
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th scope="col">번호</th>
+				<th scope="col">분류</th>
+				<th scope="col">강의명</th>
+				<th scope="col">강사님</th>
+				<th scope="col">학습 난이도</th>
+				<th scope="col">교육시간</th>
+				<th scope="col">강의 개수</th>
+			</tr>
+		</thead>
+ 
+		<tbody>
+			<?php
+
+				//게시글 번호를 총 게시글 수와 페이지에 맞춰 생성하기!
+				$get_revw_num = $total - $limit*($get_page-1);
+
+				while($row = mysql_fetch_assoc($result)){
+
+					echo "
+						<!-- set -->
+						<tr class='bbs-sbj'>
+							<td>".$get_revw_num."</td>
+							<td>".$row['ctgName']."</td>
+							<td><a href='/admin/index.php?mode=modify&lecture_num=".$row['lecNum']."'><span class='tc-gray ellipsis_line'>".$row['lecTitle']."</span></a></td>
+							<td>".$row['lecTeacher']."</td>
+							<td>".$row['lecLevel']."</td>
+							<td>".$row['lecTime']."시간</td>
+							<td class='last'>".$row['lecTotal']."강</td>
+						</tr>
+						<!-- //set -->
+					";
+					$get_revw_num--;
+				}
+			?>
+		</tbody>
+	</table>
+
+	<?php
+
+		//round() : 반올림
+		//ceil() : 올림
+
+		//마지막 페이지 번호 계산하기
+		$end_page = ceil($total/$limit);
+
+		//페이지 나열 중 가장 먼저 나타낼 번호 계산하기
+		$get_page_start = floor($get_page/$limit)*$limit+1;
+
+		if(floor($get_page/$limit)==($get_page/$limit)){
+			$get_page_start = $get_page_start - $limit;
+		}
+
+		//이전 페이지 버튼 눌렀을 때 갈 페이지 번호 계산하기
+		$pre_page = $get_page_start-1;
+
+		if($pre_page<=0){
+			$pre_page = $get_page_start;
+		}
+		
+
+		//다음 페이지 버튼 눌렀을 때 갈 페이지 번호 계산하기
+		$next_page = $get_page_start+$limit;
+
+		if($next_page>$end_page){
+			$next_page = $get_page_start;
+		}
+
+/*
+		print_r("get_page : ".$get_page."<br>");
+		print_r("end_page : ".$end_page."<br><br>");
+		print_r("get_page_start : ".$get_page_start."<br><br>");
+		print_r("pre_page : ".$pre_page."<br>");
+		print_r("next_page : ".$next_page."<br>");
+*/
+	?>
+
+	<div class="box-paging">
+		<a href="/admin/index.html?page=1"><i class="icon-first" onclick="return checkPageFunc(1, <?=$get_page?>);"><span class="hidden">첫페이지</span></i></a>
+		<a href="/admin/index.html?page=<?=$pre_page?>" onclick="return checkPageFunc(<?=$get_page_start?>, <?=$pre_page?>);"><i class="icon-prev"><span class="hidden">이전페이지</span></i></a>
+
+		<?php
+
+			$tmp = $get_page_start;
+				
+			//페이지 찍어주기
+			for($i=0; $i<$limit; $i++){
+
+				if($tmp <= $end_page){
+
+					echo "<a href='/admin/index.html?page=".$tmp."'>".$tmp."</a>";	
+
+				}
+
+				$tmp = $tmp+1;
+			}
+			
+		?>
+		
+		<a href="/admin/index.html?page=<?=$next_page?>" onclick="return checkPageFunc(<?=$get_page_start?>, <?=$next_page?>);"><i class="icon-next"><span class="hidden">다음페이지</span></i></a>
+		<a href="/admin/index.html?page=<?=$end_page?>" onclick="return checkPageFunc(<?=$get_page?>, <?=$end_page?>);"><i class="icon-last"><span class="hidden">마지막페이지</span></i></a>
+	</div>
+
+	<div class="box-btn t-r">
+		<a href="/admin/index.php?mode=regist" class="btn-m">강의 동록</a>
+	</div>
+</div>
+
+<!-- include footer -->
+<?include($_SERVER['DOCUMENT_ROOT']."/html/footer.html"); ?>
+
+</div>
+</body>
+</html>

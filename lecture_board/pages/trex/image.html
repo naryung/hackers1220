@@ -1,0 +1,107 @@
+<?php header('Content-Type: text/html; charset=UTF-8'); ?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" id="X-UA-Compatible" content="IE=EmulateIE8" />
+<title>해커스 HRD</title>
+<meta name="description" content="해커스 HRD" />
+<meta name="keywords" content="해커스, HRD" />
+<script src="../../js/popup.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="../../css/popup.css" type="text/css"  charset="utf-8"/>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+
+	function done() {
+
+		//404*259
+
+		if (typeof(execAttach) == 'undefined') { //Virtual Function
+	        return;
+	    }
+		
+		datas = new FormData();
+        datas.append( 'fileAttachment', $('input[name=fileAttachment]')[0].files[0] );
+     
+        $.ajax({
+            url: '/lecture_board/uploadRevwFile.php', //업로드할 url
+            contentType: 'multipart/form-data',
+            type: 'POST',
+            data: datas,  
+            dataType: "json",    
+            mimeType: 'multipart/form-data',
+            success: function (data) {
+				
+				if(data.result == false){
+					alert("에러가 발생하였습니다! 다시 시도해주세요!\n("+data.message+")");
+				}
+	    
+				var _mockdata = {
+					'imageurl': 'http://test.hackers.com/image/'+data.fileName,
+					'filename': data.originName,
+					'filesize': data.fileSize,
+					'imagealign': 'C',
+					'originalurl': 'http://test.hackers.com/image/'+data.fileName,
+					'thumburl': 'http://test.hackers.com/image/'+data.fileName
+				};
+
+				execAttach(_mockdata);
+				closeWindow();
+				   
+            },
+            error : function (request, status, error) {
+                alert('Error : ' + error);
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+		
+	}
+
+	function initUploader(){
+	    var _opener = PopupUtil.getOpener();
+	    if (!_opener) {
+	        alert('잘못된 경로로 접근하셨습니다.');
+	        return;
+	    }
+	    
+	    var _attacher = getAttacher('image', _opener);
+	    registerAction(_attacher);
+	}
+// ]]>
+</script>
+</head>
+<body onload="initUploader();">
+<div class="wrapper">
+	<div class="header">
+		<h1>사진 첨부</h1>
+	</div>	
+	<div class="body">
+		<dl class="alert">
+		    <dt>사진 첨부 확인</dt>
+		    <dd>
+		    	확인을 누르시면 임시 데이터가 사진첨부 됩니다.<br /> 
+				인터페이스는 소스를 확인해주세요.
+			</dd>
+		</dl>
+		<br>
+		<div align="center">
+			<form name="fileForm">
+				<input type="file" name="fileAttachment"/>
+			</form>
+		</div>
+		<br><br><br>
+	</div>
+	<div class="footer">
+		<p><a href="#" onclick="closeWindow();" title="닫기" class="close">닫기</a></p>
+		<ul>
+			<li class="submit"><a href="javascript:void(0);" onclick="done();" title="등록" class="btnlink">등록</a> </li>
+			<li class="cancel"><a href="javascript:void(0);" onclick="closeWindow();" title="취소" class="btnlink">취소</a></li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,261 @@
+﻿<?php
+	include($_SERVER['DOCUMENT_ROOT']."/member/connectDB.php");
+?>
+
+<?php
+
+	if($_SESSION['adminSession']==null){
+		echo "<script>history.back();</script>";
+		exit;
+	}
+
+	include($_SERVER['DOCUMENT_ROOT'].'/admin/selectLecture.php');
+
+	if($message === 0){
+		echo "<script>
+			alert('예상치 못한 에러가 발생하였습니다!');
+			history.back();
+		</script>";
+		exit;
+	}
+
+?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<!--[if (IE 7)]><html class="no-js ie7" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko"><![endif]-->
+<!--[if (IE 8)]><html class="no-js ie8" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko"><![endif]-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" id="X-UA-Compatible" content="IE=EmulateIE8" />
+<title>해커스 HRD</title>
+<meta name="description" content="해커스 HRD" />
+<meta name="keywords" content="해커스, HRD" />
+
+<!-- 파비콘설정 -->
+<link rel="shortcut icon" type="image/x-icon" href="http://img.hackershrd.com/common/favicon.ico" />
+
+<!-- xhtml property속성 벨리데이션 오류/확인필요 -->
+<meta property="og:title" content="해커스 HRD" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://www.hackershrd.com/" />
+<meta property="og:image" content="http://img.hackershrd.com/common/og_logo.png" />
+
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/common.css" />
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/bxslider.css" />
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/main.css" /><!-- main페이지에만 호출 -->
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/sub.css" /><!-- sub페이지에만 호출 -->
+<link type="text/css" rel="stylesheet" href="http://q.hackershrd.com/worksheet/css/login.css" /><!-- login페이지에만 호출 -->
+
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/plugins/bxslider/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/plugins/bxslider/bxslider.js"></script>
+<script type="text/javascript" src="http://q.hackershrd.com/worksheet/js/ui.js"></script>
+<!--[if lte IE 9]> <script src="/js/common/place_holder.js"></script> <![endif]-->
+
+<script type="text/javascript">
+
+	<?php echo "var lecNumVal = '".$row['lecNum']."';"; ?>
+
+	$(function(){
+		
+		$("#lecCategory").val("<?= $row['lecCategory'] ?>").attr("selected", "selected");
+
+		$("#lecLevel").val("<?= $row['lecLevel'] ?>").attr("selected", "selected");
+
+		$(".input-text.num-text").change(function(){
+			$(this).val($(this).val().replace(/[^0-9:\-]/gi, ""));
+		});
+	});
+
+	function modifyLecFunc(){
+	
+		if(!$("#lecCategory").val()){
+			alert("강의 분류를 선택하세요!");
+			$("#lecCategory").focus();
+			return false;
+		}
+
+		if(!$("#lecTitle").val()){
+			alert("강의명를 입력하세요!");
+			$("#lecTitle").focus();
+			return false;
+		}
+
+		if(!$("#lecTeacher").val()){
+			alert("강사님 이름를 입력하세요!");
+			$("#lecTeacher").focus();
+			return false;
+		}
+
+		if(!$("#lecLevel").val()){
+			alert("학습 난이도를 선택하세요!");
+			$("#lecLevel").focus();
+			return false;
+		}
+
+		if(!$("#lecTime").val()){
+			alert("교육시간를 입력하세요!");
+			$("#lecTime").focus();
+			return false;
+		}
+
+		if(!$("#lecTotal").val()){
+			alert("강의 개수를 입력하세요!");
+			$("#lecTotal").focus();
+			return false;
+		}
+
+		var datas = new FormData();
+		datas.append("lecCategory", $("#lecCategory").val());
+		datas.append("lecTitle",  $("#lecTitle").val());
+		datas.append("lecTeacher", $("#lecTeacher").val());
+		datas.append("lecLevel", $("#lecLevel").val());
+		datas.append("lecTime", $("#lecTime").val());
+		datas.append("lecTotal", $("#lecTotal").val());
+		datas.append('lecThumbnail', $('#lecThumbnail')[0].files[0]);
+		datas.append("lecNum", lecNumVal);
+		
+		$.ajax({
+			type: "POST",
+			url: "/admin/index.php?mode=modify_lecture",
+			processData: false,			//file 전송 시 필수
+			contentType: false,			//file 전송 시 필수
+			data: datas,
+			success: function(data){
+
+				if(data==2){
+					alert('수정되었습니다!');
+					location.href='/admin/index.html';
+				}
+				else{
+					alert('예상치 못한 에러가 발생하였습니다. 다시 시도해주세요!');
+				}
+			},
+			error: function(request, status, error){
+				alert("error : "+status);
+			}
+		});
+	}
+
+	function removeLecFunc(){
+		if(confirm("정말 삭제하시겠습니까?") == true){
+
+			var s = { 'lecNum': lecNumVal };
+
+			$.ajax({
+				type: "POST",
+				url: "/admin/index.php?mode=remove_lecture",
+				data: s,
+				success: function(data){
+					if(data==2){
+						alert('삭제되었습니다!');
+						location.href='/admin/index.html';
+					}
+					else{
+						alert('예상치 못한 에러가 발생하였습니다. 다시 시도해주세요!');
+					}
+				},
+				error: function(request, status, error){
+					alert("error : "+status);
+					
+				}
+			});
+		}
+		else{
+			return false;
+		}
+	}
+
+</script>
+
+</head><body>
+
+<div id="wrap">
+
+<!-- include header  -->
+<?include($_SERVER['DOCUMENT_ROOT']."/html/header.html"); ?>
+
+<div id="container" class="container">
+
+	<h3 class="tit-h3">강의 수정하기</h3>
+	<br><br>
+
+	<form id="lecUploadForm" method="post">
+
+		<table border="0" cellpadding="0" cellspacing="0" class="tbl-col">
+				<caption class="hidden">강의정보</caption>
+				<colgroup>
+					<col style="width:15%"/>
+					<col style="*"/>
+				</colgroup>
+
+				<tbody>
+					<tr>
+						<th scope="col">강의 분류</th>
+						<td>
+							<select class="input-sel" id="lecCategory" style="width:160px">
+								<option value="">선택하세요</option>
+								<option value="001">일반직무</option>
+								<option value="002">산업직무</option>
+								<option value="003">공통역량</option>
+								<option value="004">어학 및 자격증</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="col">강의명</th>
+						<td><input type="text" class="input-text" id="lecTitle" style="width:611px" maxlength="35" value="<?= $row['lecTitle'] ?>"/><p>(글자 수 제한 : 35자)</p></td>
+					</tr>
+					<tr>
+						<th scope="col">강사님 이름</th>
+						<td><input type="text" class="input-text" id="lecTeacher" maxlength="10" value="<?= $row['lecTeacher'] ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="col">학습 난이도</th>
+						<td>
+							<select class="input-sel" style="width:160px" id="lecLevel">
+								<option value="">선택하세요</option>	
+								<option value="상">상</option>
+								<option value="중">중</option>
+								<option value="하">하</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="col">교육시간</th>
+						<td><input type="text" class="input-text num-text" id="lecTime" maxlength="3" value="<?= $row['lecTime'] ?>"/>&nbsp;시간</td>
+					</tr>
+					<tr>
+						<th scope="col">강의 개수</th>
+						<td><input type="text" class="input-text num-text" id="lecTotal" maxlength="3" value="<?= $row['lecTotal'] ?>"/>&nbsp;강</td>
+					</tr>
+					<tr>
+						<th scope="col">썸네일 이미지 업로드</th>
+						<td>
+							<input type="file" name="lecThumbnail" id="lecThumbnail" accept="image/*" value="<?= $row['lecThumbnail'] ?>" />
+							<p>(파일 크기는 1MB 미만이어야 합니다.)</p>
+							<br>
+							기존 이미지<br>
+							<img src="/image/<?= $row['lecThumbnail'] ?>" style="height:200px; width:auto;"/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	
+		<div class="box-btn t-r">
+			<a href="/admin/index.html" class="btn-m-gray">목록</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" class="btn-m-dark" onclick="return removeLecFunc();">삭제</a>
+			<a href="javascript:void(0);" class="btn-m ml5" onclick="return modifyLecFunc();">수정</a>
+		</div>
+	
+</div>
+
+<!-- include footer -->
+<?include($_SERVER['DOCUMENT_ROOT']."/html/footer.html"); ?>
+
+</div>
+</body>
+</html>
