@@ -163,7 +163,7 @@
 						while($row_revw_file = mysql_fetch_assoc($result_revwfile)){
 							echo'
 								<img src="images/icon/editor/p_etc_s.gif" />&nbsp;
-								<a href="/image/'.$row_revw_file['fileName'].'" download>'.$row_revw_file['realName'].'</a><br>
+								<a href="/image/'.$row_revw_file['fileName'].'" download="'.$row_revw_file['realName'].'">'.$row_revw_file['realName'].'</a><br>
 							';
 						}
 
